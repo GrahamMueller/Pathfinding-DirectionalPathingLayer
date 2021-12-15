@@ -82,15 +82,15 @@ public class Pathfinder
 
     //Request?  A to B?
 
-    Vector2_int startPoint;
+    public Vector2_int startPoint;
 
-    Vector2_int endPoint;
+    public Vector2_int endPoint;
 
-    MapDirectionalLayer mapLayer;
+    public MapDirectionalLayer mapLayer;
 
-    Stack completedPath;
-    List<PathfinderNode> openList;
-    List<PathfinderNode> closedList;
+    public Stack completedPath;
+    public List<PathfinderNode> openList;
+    public List<PathfinderNode> closedList;
 
     public Pathfinder(int startX, int startY, int endX, int endY, MapDirectionalLayer mapLayer, PathfindSettings settings)
     {
@@ -176,12 +176,13 @@ public class Pathfinder
         //Remove neighbors from open list
         //Remove neighbors from closed list
         //Return final list.  May be empty.
+
         DirectionalNode centerMapNode = this.mapLayer.DirectionLayer.directionalNodes[centerNode.pos.x, centerNode.pos.y];
         Stack neighborNodes = new Stack();
         //Forward
         if (centerMapNode.directions[0] != 0)
         {
-            Vector2_int newPos = new Vector2_int() { x = centerNode.pos.x + 1, y = centerNode.pos.y };
+            Vector2_int newPos = new Vector2_int() { x = centerNode.pos.x, y = centerNode.pos.y + 1};
             if (newPos.x >= 0 &&
                 newPos.y >= 0 &&
                 newPos.x < this.mapLayer.DirectionLayer.directionalNodes.GetLength(0) &&
@@ -194,7 +195,7 @@ public class Pathfinder
         //Back
         if (centerMapNode.directions[1] != 0)
         {
-            Vector2_int newPos = new Vector2_int() { x = centerNode.pos.x - 1, y = centerNode.pos.y };
+            Vector2_int newPos = new Vector2_int() { x = centerNode.pos.x, y = centerNode.pos.y - 1 };
             if (newPos.x >= 0 &&
                 newPos.y >= 0 &&
                 newPos.x < this.mapLayer.DirectionLayer.directionalNodes.GetLength(0) &&
@@ -204,10 +205,10 @@ public class Pathfinder
             }
         }
 
-        //Right
+        //right
         if (centerMapNode.directions[2] != 0)
         {
-            Vector2_int newPos = new Vector2_int() { x = centerNode.pos.x, y = centerNode.pos.y + 1 };
+            Vector2_int newPos = new Vector2_int() { x = centerNode.pos.x + 1, y = centerNode.pos.y};
             if (newPos.x >= 0 &&
                 newPos.y >= 0 &&
                 newPos.x < this.mapLayer.DirectionLayer.directionalNodes.GetLength(0) &&
@@ -217,10 +218,10 @@ public class Pathfinder
             }
         }
 
-        //Left
+        //left
         if (centerMapNode.directions[3] != 0)
         {
-            Vector2_int newPos = new Vector2_int() { x = centerNode.pos.x, y = centerNode.pos.y - 1 };
+            Vector2_int newPos = new Vector2_int() { x = centerNode.pos.x - 1, y = centerNode.pos.y};
             if (newPos.x >= 0 &&
                 newPos.y >= 0 &&
                 newPos.x < this.mapLayer.DirectionLayer.directionalNodes.GetLength(0) &&

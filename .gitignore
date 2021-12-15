@@ -58,3 +58,8 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
+# VSStudio
+/bin~
+/obj~
+pathfinding.directional.layers.csproj.meta
+pathfinding.directional.layers.sln.meta
