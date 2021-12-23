@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+	<StartupObject></StartupObject>
+
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Tests\Unity\**" />
+    <EmbeddedResource Remove="Tests\Unity\**" />
+    <None Remove="Tests\Unity\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="JUnitTestLogger" Version="1.1.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
+    <PackageReference Include="NUnit" Version="3.13.1" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.1.0" />
+    <PackageReference Include="coverlet.collector" Version="3.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\directional.pathing.layers\DirectionalPathingLayers.csproj" />
+  </ItemGroup>
+
+</Project>
