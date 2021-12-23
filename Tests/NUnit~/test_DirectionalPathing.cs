@@ -1,6 +1,5 @@
 ﻿using NUnit.Framework;
 
-
 public class test_DirectionalPathing
 {
     [Test]
@@ -105,4 +104,6 @@ public class test_DirectionalPathing
         Assert.IsTrue(pathFinderMap.openList.Count == 0);
         Assert.IsTrue(pathFinderMap.closedList.Count > 0);
     }
+
+
 }
