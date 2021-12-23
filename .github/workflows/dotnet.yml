@@ -21,6 +21,8 @@ jobs:
         dotnet-version: 5.0.x
     - name: Restore dependencies
       run: dotnet restore
+    - name: DebugLS
+      run: ls -pla
     - name: Build
       run: dotnet build PathfindingDirectionalLayers.csproj --no-restore
     - name: Test
