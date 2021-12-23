@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
 
-namespace pathfinding.directional.layers.Tests.NUnit_
+namespace PathfindingDirectionalLayers.Tests.NUnit_
 {
     class test_Settings
     {

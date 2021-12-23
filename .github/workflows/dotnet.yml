@@ -23,9 +23,7 @@ jobs:
         dotnet-version: 5.0.x
     - name: Restore dependencies
       run: dotnet restore
-    - name: DebugLS
-      run: ls -pla
     - name: Build
       run: dotnet build PathfindingDirectionalLayers.csproj --no-restore
     - name: Test
-      run: dotnet test PathfindingDirectionalLayers.csproj --no-build --verbosity normal  --logger "junit" --collect:"Xplat Code Coverage"
+      run: dotnet test PathfindingDirectionalLayers.csproj --no-build --verbosity normal  --logger "junit" --collect:"Xplat Code Coverage" --filter "FullyQualifiedName=PathfindingDirectionalLayers"
