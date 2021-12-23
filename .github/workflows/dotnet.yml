@@ -13,6 +13,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        submodules: true
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
@@ -20,6 +22,6 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build PathfindingDirectionalLayers.csproj --no-restore
     - name: Test
-      run: dotnet test --no-build --verbosity normal  --logger "junit" --collect:"Xplat Code Coverage"
+      run: dotnet test PathfindingDirectionalLayers.csproj --no-build --verbosity normal  --logger "junit" --collect:"Xplat Code Coverage"
