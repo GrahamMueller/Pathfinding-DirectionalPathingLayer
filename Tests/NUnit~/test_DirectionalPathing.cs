@@ -25,8 +25,8 @@ namespace PathfindingDirectionalLayers.Tests.NUnit_
             }
 
             Assert.IsTrue(pathFinderMap.completedPath == null);
-            Assert.IsTrue(pathFinderMap.openList.Count == 0);
-            Assert.IsTrue(pathFinderMap.closedList.Count > 0);
+            Assert.IsTrue(pathFinderMap.OpenList.Count == 0);
+            Assert.IsTrue(pathFinderMap.ClosedList.Count > 0);
         }
 
         [Test]
@@ -51,8 +51,8 @@ namespace PathfindingDirectionalLayers.Tests.NUnit_
 
             //Because of the long line added, we should be unable to reach the end point.  All options should be explored.
             Assert.IsTrue(pathFinderMap.completedPath == null);
-            Assert.IsTrue(pathFinderMap.openList.Count == 0);
-            Assert.IsTrue(pathFinderMap.closedList.Count > 0);
+            Assert.IsTrue(pathFinderMap.OpenList.Count == 0);
+            Assert.IsTrue(pathFinderMap.ClosedList.Count > 0);
         }
 
         [Test]
@@ -77,8 +77,8 @@ namespace PathfindingDirectionalLayers.Tests.NUnit_
 
             //Because of the long line added, we should be unable to reach the end point.  All options should be explored.
             Assert.IsTrue(pathFinderMap.completedPath == null);
-            Assert.IsTrue(pathFinderMap.openList.Count == 0);
-            Assert.IsTrue(pathFinderMap.closedList.Count > 0);
+            Assert.IsTrue(pathFinderMap.OpenList.Count == 0);
+            Assert.IsTrue(pathFinderMap.ClosedList.Count > 0);
         }
 
         [Test]
@@ -103,8 +103,8 @@ namespace PathfindingDirectionalLayers.Tests.NUnit_
 
             //Because of the long line added, we should be unable to reach the end point.  All options should be explored.
             Assert.IsTrue(pathFinderMap.completedPath == null);
-            Assert.IsTrue(pathFinderMap.openList.Count == 0);
-            Assert.IsTrue(pathFinderMap.closedList.Count > 0);
+            Assert.IsTrue(pathFinderMap.OpenList.Count == 0);
+            Assert.IsTrue(pathFinderMap.ClosedList.Count > 0);
         }
 
 

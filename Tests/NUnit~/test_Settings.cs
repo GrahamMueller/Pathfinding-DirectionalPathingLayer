@@ -22,7 +22,7 @@ namespace PathfindingDirectionalLayers.Tests.NUnit_
                 ;
             }
 
-            Assert.AreEqual(pathfindSettings.EarlyExit_maxIterations, pathFinderMap.closedList.Count - 1);
+            Assert.AreEqual(pathfindSettings.EarlyExit_maxIterations, pathFinderMap.ClosedList.Count - 1);
             Assert.IsNull(pathFinderMap.completedPath);
 
             pathfindSettings = new PathfindSettings() { };
@@ -40,13 +40,13 @@ namespace PathfindingDirectionalLayers.Tests.NUnit_
         }
 
 
-//#if RELEASE
-//        [Test]
-//#endif
-//        public void Test_Summary()
-//        {
-//            //NBenchRunner.Run<Program>();
-//        }
+        //#if RELEASE
+        //        [Test]
+        //#endif
+        //        public void Test_Summary()
+        //        {
+        //            //NBenchRunner.Run<Program>();
+        //        }
     }
 
     //public class TestClass
