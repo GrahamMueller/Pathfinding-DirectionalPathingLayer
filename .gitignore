@@ -63,3 +63,4 @@ crashlytics-build.properties
 /obj~
 pathfinding.directional.layers.csproj.meta
 pathfinding.directional.layers.sln.meta
+*.meta
