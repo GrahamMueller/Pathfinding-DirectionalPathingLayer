@@ -10,9 +10,6 @@ QUESTIONS
         Unless it is simply 'open area pathing layer' 
 
 
-ROUGH DESIGN
-    Pointed to list of [DirectionalNode, DirectionalNode]
-
 WISHLIST
     pathfinding thread?
         Keep this as a reuseable thread, where pathfinding can be safely updated outside of this.
@@ -23,10 +20,7 @@ WISHLIST
     Size?
         Probably a functino of the pathfidning supplied, not this.  IE if you want a 2x2 pathfinding operation, supply a grid where it can only move to.
 
-    Area scope, max cost, max iterations
-        Adjustable settings to limit pathfinding.  
     
-
 
 TODO
     Create several loadable states for the game map.
@@ -37,18 +31,18 @@ TODO
         Boxes (allows us to fail)
 
     Create an agent class that knows it wants to start at A, end at B.
-
-
-
-
-Agent says I want to pathfind from A to B.
-    Creates pathinding object.
-    Tells this object "You start here and want to end here.  Here is pathing map.  Do N iterations and report back to me."
-        Also pass in config of things like "start,end", "threaded" ect
-    Check if pathfinding object is complete or has a failure.
-        Complete : has path
-        Failure : Why it failed
+ 
+    Add cost
+        Base cost : Cost of parent.base_cost + this node
+        Distance cost : Cost based on distance.  
+        Parent suggestion : Suggestion from parent?  
+        Node cost : base + distance 
+            Use this to determine pathing.
     
+    Add debug tool to create texture for this
+    
+    Add benchmarking
+
     
 */
 using System;
@@ -61,7 +55,19 @@ public struct Vector2_int
 {
     public int x;
     public int y;
+
+    public static bool operator ==(Vector2_int left, Vector2_int right)
+    {
+        return (left.x == right.x) && (left.y == right.y);
+    }
+
+    public static bool operator !=(Vector2_int left, Vector2_int right)
+    {
+        return (left.x != right.x) && (left.y != right.y);
+    }
 };
+
+
 
 public class PathfinderNode
 {
@@ -76,6 +82,8 @@ public class PathfinderNode
         this.cost = cost;
     }
 }
+
+
 public class Pathfinder
 {
     public PathfindSettings settings;
@@ -92,6 +100,8 @@ public class Pathfinder
     public List<PathfinderNode> openList;
     public List<PathfinderNode> closedList;
 
+    int iteration_count;
+
     public Pathfinder(int startX, int startY, int endX, int endY, MapDirectionalLayer mapLayer, PathfindSettings settings)
     {
         this.startPoint.x = startX;
@@ -101,7 +111,6 @@ public class Pathfinder
         this.endPoint.y = endY;
 
         this.mapLayer = mapLayer;
-
         this.settings = settings;
 
         //--Setup initial iteration.
@@ -110,79 +119,100 @@ public class Pathfinder
 
         this.closedList = new List<PathfinderNode>();
 
+        this.iteration_count = 0;
+
     }
 
-    public bool Iterate()
+
+    bool EarlyExit()
     {
-        //Return true when we have a path from start to end
-        //list of seen nodes
-        //method of storing paths
-        //Early exits
         if (this.openList.Count == 0) { return true; }
         if (this.completedPath != null) { return true; }
+        if (this.iteration_count++ > this.settings.EarlyExit_maxIterations) { return true; }
+        return false;
+    }
+
+
+    void GenerateCompletedPath(PathfinderNode topNode)
+    {
+        this.completedPath = new Stack();
+
+        PathfinderNode pathNode = topNode;
+        do
+        {
+            this.completedPath.Push(pathNode);
+            pathNode = pathNode.parent;
+
+        } while (pathNode != null && !(pathNode.pos.x == this.startPoint.x && pathNode.pos.y == this.startPoint.y));
+
+        //If exited due to running out of options, that indicates a failure.
+        if (pathNode == null)
+        {
+            this.completedPath = null;
+        }
+    }
+
+
+    /// <summary>
+    /// Performs 1 node iteration on the pathfinding.  Exits early on multiple occasions.
+    /// </summary>
+    /// <returns>True if unable to iterate (out of options, found exit)</returns>
+    public bool Iterate()
+    {
+        //Return true when unable to path further.
+        if (this.EarlyExit() == true) { return true; }
 
         //Extract next best node.
         PathfinderNode currentNode = this.openList[0];
         this.openList.RemoveAt(0);
         this.closedList.Add(currentNode);
 
-        if (currentNode.pos.x == this.endPoint.x && currentNode.pos.y == this.endPoint.y)
+        //Exit found detection.
+        if (currentNode.pos == this.endPoint)
         {
-            this.completedPath = new Stack();
-
-            PathfinderNode pathNode = currentNode;
-            //Console.WriteLine(pathNode.pos.x + ", " + pathNode.pos.y);
-            do
-            {
-                this.completedPath.Push(pathNode);
-                Console.Write(pathNode.pos.x + ", " + pathNode.pos.y + "\n");
-                pathNode = pathNode.parent;
-
-            } while (pathNode != null && !(pathNode.pos.x == this.startPoint.x && pathNode.pos.y == this.startPoint.y));
-
-
+            this.GenerateCompletedPath(currentNode);
             return true;
         }
 
-        //Get neighbors
+        //Get neighbors around best node.
         Stack neighborNodes = this.GetNeighbors(currentNode);
         while (neighborNodes.Count > 0)
         {
             PathfinderNode neighborNode = (PathfinderNode)neighborNodes.Pop();
-            //If neighbornode not in 
-            if (!this.PointInList(neighborNode.pos, this.openList) && !this.PointInList(neighborNode.pos, this.closedList))
+            //Only add neighbors to open if we are unaware of them.
+            if (!this.PointInList(neighborNode, this.openList) && !this.PointInList(neighborNode, this.closedList))
             {
+                //Cost function
                 neighborNode.cost = this.GetDist(neighborNode, this.endPoint);
                 this.openList.Add(neighborNode);
             }
-
-            //Sort list
         }
         this.openList = this.openList.OrderBy(node => node.cost).ToList<PathfinderNode>();
 
         return false;
     }
-    bool PointInList(Vector2_int point, List<PathfinderNode> list)
+
+
+    bool PointInList(PathfinderNode point, List<PathfinderNode> list)
     {
-        foreach (PathfinderNode node in list)
+        PathfinderNode node;
+        for (int i = 0; i < list.Count; ++i)
         {
-            if (node.pos.x == point.x && node.pos.y == point.y) { return true; }
+            node = list[i];
+            if (node.pos == point.pos) { return true; }
         }
         return false;
     }
+
+
     public Stack GetNeighbors(PathfinderNode centerNode)
     {
-        //Get neighbors able to be traveled to
-        //Remove neighbors from open list
-        //Remove neighbors from closed list
-        //Return final list.  May be empty.
-
         DirectionalNode centerMapNode = this.mapLayer.DirectionLayer.directionalNodes[centerNode.pos.x, centerNode.pos.y];
         Stack neighborNodes = new Stack();
         //Forward
         if (centerMapNode.directions[0] != 0)
         {
-            Vector2_int newPos = new Vector2_int() { x = centerNode.pos.x, y = centerNode.pos.y + 1};
+            Vector2_int newPos = new Vector2_int() { x = centerNode.pos.x, y = centerNode.pos.y + 1 };
             if (newPos.x >= 0 &&
                 newPos.y >= 0 &&
                 newPos.x < this.mapLayer.DirectionLayer.directionalNodes.GetLength(0) &&
@@ -208,7 +238,7 @@ public class Pathfinder
         //right
         if (centerMapNode.directions[2] != 0)
         {
-            Vector2_int newPos = new Vector2_int() { x = centerNode.pos.x + 1, y = centerNode.pos.y};
+            Vector2_int newPos = new Vector2_int() { x = centerNode.pos.x + 1, y = centerNode.pos.y };
             if (newPos.x >= 0 &&
                 newPos.y >= 0 &&
                 newPos.x < this.mapLayer.DirectionLayer.directionalNodes.GetLength(0) &&
@@ -221,7 +251,7 @@ public class Pathfinder
         //left
         if (centerMapNode.directions[3] != 0)
         {
-            Vector2_int newPos = new Vector2_int() { x = centerNode.pos.x - 1, y = centerNode.pos.y};
+            Vector2_int newPos = new Vector2_int() { x = centerNode.pos.x - 1, y = centerNode.pos.y };
             if (newPos.x >= 0 &&
                 newPos.y >= 0 &&
                 newPos.x < this.mapLayer.DirectionLayer.directionalNodes.GetLength(0) &&
@@ -232,16 +262,23 @@ public class Pathfinder
         }
 
         //Other up down later supported
-
+        if (centerMapNode.directions[4] != 0)
+        {
+            throw new Exception("Vertical movement unsupported");
+        }
+        if (centerMapNode.directions[5] != 0)
+        {
+            throw new Exception("Vertical movement unsupported");
+        }
 
         return neighborNodes;
     }
+
 
     public int GetDist(PathfinderNode centerNode, Vector2_int offsetNode)
     {
         return (int)Math.Sqrt((Math.Pow((centerNode.pos.x - offsetNode.x), 2) + Math.Pow((centerNode.pos.y - offsetNode.y), 2)));
     }
-
 
 }
 
@@ -257,16 +294,16 @@ public class PathfindSettings
 {
     //use async
     //use threading
-
-
     int earlyExit_maxIterations;
-    int earlyExit_maxRange;
 
     public PathfindSettings()
     {
+        this.earlyExit_maxIterations = -1; //Set to ignore
     }
 
-    //If early exit is -1, disable and use max value instead.
+    /// <summary>
+    /// If set, limits of pathfind iterations.
+    /// </summary>
     public int EarlyExit_maxIterations
     {
         get
@@ -277,14 +314,5 @@ public class PathfindSettings
         set => this.earlyExit_maxIterations = value;
     }
 
-    //If early exit is -1, disable and use max value instead.
-    public int EarlyExit_maxRange
-    {
-        get
-        {
-            if (this.earlyExit_maxRange < 0) { return int.MaxValue; }
-            else { return this.earlyExit_maxRange; }
-        }
-        set => this.earlyExit_maxRange = value;
-    }
+
 }
