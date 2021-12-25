@@ -43,8 +43,10 @@ using System.Linq;
 
 namespace PathfindingDirectionalLayers
 {
+
 #pragma warning disable CS0660 // Type defines operator == or operator != but does not override Object.Equals(object o)
 #pragma warning disable CS0661 // Type defines operator == or operator != but does not override Object.GetHashCode()
+    /// <summary> Index coordinates struct.</summary>
     public struct Vector2_int
     {
         public int x;
@@ -62,12 +64,12 @@ namespace PathfindingDirectionalLayers
 
         public static bool operator !=(Vector2_int left, Vector2_int right)
         {
-            return (left.x != right.x) && (left.y != right.y);
+            return (left.x != right.x) || (left.y != right.y);
         }
 
     };
 
-
+    /// <summary> Pathfinding node used to find a path from start to end.  </summary>
     public class PathfinderNode
     {
         public PathfinderNode parent;
@@ -128,23 +130,22 @@ namespace PathfindingDirectionalLayers
             this.endPoint.y = endY;
 
             this.mapLayer = mapLayer;
+
             this.settings = settings;
 
             //--Setup initial iteration.
             this.openList = new List<PathfinderNode>();
             this.openList.Add(new PathfinderNode(this.StartPoint, null, 0));
-
             this.closedList = new List<PathfinderNode>();
-
             this.iteration_count = 0;
-            this.isComplete = false;
 
+            this.isComplete = false;
             //Early exit if either start or end point fall outside bounds.
             if (!this.mapLayer.IsIndexPointInLayer(this.startPoint.x, this.startPoint.y)) { this.isComplete = true; }
             if (!this.mapLayer.IsIndexPointInLayer(this.endPoint.x, this.endPoint.y)) { this.isComplete = true; }
         }
 
-
+        /// <summary> Returns true if the pathfinder is in a completed state. </summary>
         bool EarlyExit()
         {
             if (this.isComplete) { return true; }
@@ -154,7 +155,7 @@ namespace PathfindingDirectionalLayers
             return false;
         }
 
-
+        /// <summary> Calculates a path from the 'bottom' node back to the starting node.</summary>
         List<PathfinderNode> PathBackwardsFromNode(PathfinderNode bottomNode)
         {
             List<PathfinderNode> backwardsPath = new List<PathfinderNode>();
@@ -179,6 +180,7 @@ namespace PathfindingDirectionalLayers
             return backwardsPath;
         }
 
+        /// <summary> Calculates a path from the top node down to the 'bottomNode'.</summary>
         List<PathfinderNode> PathForwardsFromNode(PathfinderNode bottomNode)
         {
             List<PathfinderNode> forwardsPath = this.PathBackwardsFromNode(bottomNode);
@@ -186,6 +188,7 @@ namespace PathfindingDirectionalLayers
             return forwardsPath;
         }
 
+        /// <summary> Iterates a number of times sequentually. </summary>
         public bool Iterate(int iterateCount)
         {
             bool returnValue = false;
@@ -208,18 +211,13 @@ namespace PathfindingDirectionalLayers
             return bestNode;
         }
 
-        /// <summary>
-        /// Gets cost of the node given.  
-        /// </summary>
+        /// <summary> Gets cost of the node given. </summary>
         int GetCostOfNode(PathfinderNode node)
         {
             return this.GetDist(node, this.endPoint);
         }
 
-        /// <summary>
-        /// Adds nodes in 'neighbors' to open list if they do not already exist in open or closed lists.
-        /// </summary>
-        /// <param name="neighbors"></param>
+        /// <summary> Adds nodes in 'neighbors' to open list if they do not already exist in open or closed lists.</summary>
         void AddNeighborsToOpen(Stack neighbors)
         {
             while (neighbors.Count > 0)
@@ -283,7 +281,7 @@ namespace PathfindingDirectionalLayers
         }
 
 
-        public Stack GetNeighbors(PathfinderNode centerNode)
+        Stack GetNeighbors(PathfinderNode centerNode)
         {
             DirectionalNode centerMapNode = this.mapLayer.DirectionLayer.directionalNodes[centerNode.pos.x, centerNode.pos.y];
             Stack neighborNodes = new Stack();
