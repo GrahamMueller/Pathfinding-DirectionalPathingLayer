@@ -23,6 +23,8 @@ WISHLIST
     
 
 TODO
+    Test performance of open list using a linked list to increase sort performance.    
+    
     Create several loadable states for the game map.
         Blank.
         Line.
@@ -89,28 +91,39 @@ namespace PathfindingDirectionalLayers
 
     public class Pathfinder
     {
+        //Completed path if it exists.
+        Stack completedPath;
+
+        //Internal counter.
+        int iteration_count;
+
+        /// <summary> Configuration of pathfinder. </summary>
+        public PathfindSettings Settings { get => this.settings; }
         PathfindSettings settings;
 
+        /// <summary> Entry point pathfinding will start at. </summary>
+        public Vector2_int StartPoint { get => this.startPoint; }
         Vector2_int startPoint;
 
+        /// <summary> End point pathfinding will attempt to reach. </summary>
+        public Vector2_int EndPoint { get => this.endPoint; }
         Vector2_int endPoint;
 
+        /// <summary> Map layer pathfinding will use. </summary>
+        public MapDirectionalLayer MapLayer { get => this.mapLayer; }
         MapDirectionalLayer mapLayer;
 
-
-        public Stack completedPath;
-        List<PathfinderNode> openList;
-        List<PathfinderNode> closedList;
-        int iteration_count;
-        bool isComplete;
-
-        public PathfindSettings Settings { get => this.settings; }
-        public Vector2_int StartPoint { get => this.startPoint; }
-        public Vector2_int EndPoint { get => this.endPoint; }
-        public MapDirectionalLayer MapLayer { get => this.mapLayer; }
+        /// <summary> Sorted list of points with [0] being lowest cost. Used to explore nodes until a path from start to end is found.</summary>
         public List<PathfinderNode> OpenList { get => this.openList; }
+        List<PathfinderNode> openList;
+
+        /// <summary> Unsorted list of points previously in 'OpenList' which can path back to start point.</summary>
         public List<PathfinderNode> ClosedList { get => this.closedList; }
+        List<PathfinderNode> closedList;
+
+        /// <summary> If the pathfinding is complete, either by a path having been found or after exhausting all options.</summary>
         public bool IsComplete { get => this.isComplete; }
+        bool isComplete;
 
         public Pathfinder(int startX, int startY, int endX, int endY, MapDirectionalLayer mapLayer, PathfindSettings settings)
         {
@@ -176,18 +189,57 @@ namespace PathfindingDirectionalLayers
         }
 
         /// <summary>
+        /// Returns next node to explore.
+        /// Takes next node in 'openList', removes it, and adds it to closedList before returning that node.
+        /// </summary>
+        PathfinderNode GetNextBestNode()
+        {
+            PathfinderNode bestNode = this.openList[0];
+            this.openList.RemoveAt(0);
+            this.closedList.Add(bestNode);
+            return bestNode;
+        }
+
+        /// <summary>
+        /// Gets cost of the node given.  
+        /// </summary>
+        int GetCostOfNode(PathfinderNode node)
+        {
+            return this.GetDist(node, this.endPoint);
+        }
+
+        /// <summary>
+        /// Adds nodes in 'neighbors' to open list if they do not already exist in open or closed lists.
+        /// </summary>
+        /// <param name="neighbors"></param>
+        void AddNeighborsToOpen(Stack neighbors)
+        {
+            while (neighbors.Count > 0)
+            {
+                PathfinderNode neighborNode = (PathfinderNode)neighbors.Pop();
+                //Only add neighbors to open if we are unaware of them.
+                if (!this.PointInList(neighborNode, this.openList) && !this.PointInList(neighborNode, this.closedList))
+                {
+                    //Cost function
+                    neighborNode.cost = this.GetCostOfNode(neighborNode);
+                    this.openList.Add(neighborNode);
+                }
+            }
+        }
+
+        /// <summary>
         /// Performs 1 node iteration on the pathfinding.  Exits early on multiple occasions.
         /// </summary>
         /// <returns>True if unable to iterate (out of options, found exit)</returns>
         public bool Iterate()
         {
             //Return true when unable to path further.
+            if (this.isComplete) { return true; }
             if (this.EarlyExit() == true) { this.isComplete = true; return true; }
 
+
             //Extract next best node.
-            PathfinderNode currentNode = this.openList[0];
-            this.openList.RemoveAt(0);
-            this.closedList.Add(currentNode);
+            PathfinderNode currentNode = this.GetNextBestNode();
 
             //Exit found detection.
             if (currentNode.pos == this.endPoint)
@@ -198,19 +250,14 @@ namespace PathfindingDirectionalLayers
 
             //Get neighbors around best node.
             Stack neighborNodes = this.GetNeighbors(currentNode);
-            while (neighborNodes.Count > 0)
-            {
-                PathfinderNode neighborNode = (PathfinderNode)neighborNodes.Pop();
-                //Only add neighbors to open if we are unaware of them.
-                if (!this.PointInList(neighborNode, this.openList) && !this.PointInList(neighborNode, this.closedList))
-                {
-                    //Cost function
-                    neighborNode.cost = this.GetDist(neighborNode, this.endPoint);
-                    this.openList.Add(neighborNode);
-                }
-            }
+
+            //Add neighbors to list.
+            this.AddNeighborsToOpen(neighborNodes);
+
+            //Update ordering.
             this.openList = this.openList.OrderBy(node => node.cost).ToList<PathfinderNode>();
 
+            //Not at end!
             return false;
         }
 
@@ -302,11 +349,18 @@ namespace PathfindingDirectionalLayers
             return (int)Math.Sqrt((Math.Pow((centerNode.pos.x - offsetNode.x), 2) + Math.Pow((centerNode.pos.y - offsetNode.y), 2)));
         }
 
+        /// <summary>
+        /// If a path from start to end has been found, returns that path.
+        /// </summary>
+        /// <returns>Array of nodes from start to end.</returns>
+        public PathfinderNode[] GetCompletedPath()
+        {
+            if (!this.isComplete) { return null; }
+            if (this.completedPath == null) { return null; }
+
+            return (PathfinderNode[])this.completedPath.ToArray().Reverse();
+        }
     }
-
-
-
-
 
 
     /// <summary>
@@ -316,16 +370,15 @@ namespace PathfindingDirectionalLayers
     {
         //use async
         //use threading
-        int earlyExit_maxIterations;
-
+        
+        /// <summary> </summary>
         public PathfindSettings()
         {
             this.earlyExit_maxIterations = -1; //Set to ignore
         }
+        
 
-        /// <summary>
-        /// If set, limits of pathfind iterations.
-        /// </summary>
+        /// <summary> If set, limits upper number of iterations pathfinding may perform until it marks itself complete.  -1 for no limit.</summary>
         public int EarlyExit_maxIterations
         {
             get
@@ -335,7 +388,7 @@ namespace PathfindingDirectionalLayers
             }
             set => this.earlyExit_maxIterations = value;
         }
-
+        int earlyExit_maxIterations;
 
     }
 }
