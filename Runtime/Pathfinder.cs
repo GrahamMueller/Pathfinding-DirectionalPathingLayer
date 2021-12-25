@@ -16,35 +16,24 @@ WISHLIST
         
     async?
         Allow pathfinding to do work while user does other things?
-  
-    Size?
-        Probably a functino of the pathfidning supplied, not this.  IE if you want a 2x2 pathfinding operation, supply a grid where it can only move to.
+
 
     
 
 TODO
     Test performance of open list using a linked list to increase sort performance.    
-    
-    Create several loadable states for the game map.
-        Blank.
-        Line.
-        Maze.
-        Forest with lines.
-        Boxes (allows us to fail)
-
-    Create an agent class that knows it wants to start at A, end at B.
  
-    Add cost
+    Add proper cost
         Base cost : Cost of parent.base_cost + this node
         Distance cost : Cost based on distance.  
         Parent suggestion : Suggestion from parent?  
         Node cost : base + distance 
             Use this to determine pathing.
     
-    Add debug tool to create texture for this
+    Add debug tool to create texture for this, especially for use in testing.
     
     Add benchmarking
-
+    
     
 */
 using System;
@@ -149,6 +138,10 @@ namespace PathfindingDirectionalLayers
 
             this.iteration_count = 0;
             this.isComplete = false;
+
+            //Early exit if either start or end point fall outside bounds.
+            if (!this.mapLayer.IsIndexPointInLayer(this.startPoint.x, this.startPoint.y)) { this.isComplete = true; }
+            if (!this.mapLayer.IsIndexPointInLayer(this.endPoint.x, this.endPoint.y)) { this.isComplete = true; }
         }
 
 
@@ -243,7 +236,8 @@ namespace PathfindingDirectionalLayers
         }
 
         /// <summary>
-        /// Performs 1 node iteration on the pathfinding.  Exits early on multiple occasions.
+        /// Performs 1 node iteration on the pathfinding.
+        /// Takes next best node and adds its neighbors to the open list.  
         /// </summary>
         /// <returns>True if unable to iterate (out of options, found exit)</returns>
         public bool Iterate()
@@ -251,7 +245,6 @@ namespace PathfindingDirectionalLayers
             //Return true when unable to path further.
             if (this.isComplete) { return true; }
             if (this.EarlyExit() == true) { this.isComplete = true; return true; }
-
 
             //Extract next best node.
             PathfinderNode currentNode = this.GetNextBestNode();

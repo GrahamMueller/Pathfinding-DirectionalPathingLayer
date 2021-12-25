@@ -31,7 +31,25 @@ namespace PathfindingDirectionalLayers.Tests.NUnit_
             }
         }
 
+        [Test]
+        public void Test_FailStartOutside() //Test expected failure to path when start is outside bounds.
+        {
+            MapDirectionalLayer mapLayer = new MapDirectionalLayer(10, 10, new DirectionalNode(new int[] { 1, 1, 1, 1, 0, 0 }));
+            Pathfinder pathFinderMap = new Pathfinder(100, 0, 0, 0, mapLayer, new PathfindSettings());
 
+            Assert.IsTrue(pathFinderMap.IsComplete);
+            Assert.IsNull(pathFinderMap.GetCompletedPath());
+        }
+
+        [Test]
+        public void Test_FailEndOutside() //Test expected failure to path when end is outside bounds.
+        {
+            MapDirectionalLayer mapLayer = new MapDirectionalLayer(10, 10, new DirectionalNode(new int[] { 1, 1, 1, 1, 0, 0 }));
+            Pathfinder pathFinderMap = new Pathfinder(0, 0, 100, 0, mapLayer, new PathfindSettings());
+
+            Assert.IsTrue(pathFinderMap.IsComplete);
+            Assert.IsNull(pathFinderMap.GetCompletedPath());
+        }
 
         [Test]
         public void Test_FailTravelForward()
