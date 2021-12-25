@@ -4,6 +4,35 @@ namespace PathfindingDirectionalLayers.Tests.NUnit_
 {
     public class test_DirectionalPathing
     {
+
+        [Test]
+        public void Test_PathingOrder() //Tests that a path can be found forward and in the correct order. 
+        {
+            Vector2_int[] expectedPath = new Vector2_int[6] { new Vector2_int(0, 0), new Vector2_int(0, 1), new Vector2_int(0, 2), new Vector2_int(0, 3), new Vector2_int(0, 4), new Vector2_int(0, 5) };
+            MapDirectionalLayer mapLayer = new MapDirectionalLayer(10, 10, new DirectionalNode(new int[] { 1, 1, 1, 1, 0, 0 }));
+
+            Pathfinder pathFinderMap = new Pathfinder(0, 0, 0, 5, mapLayer, new PathfindSettings());
+
+            int earlyExititer = 0;
+            while (pathFinderMap.Iterate() == false && earlyExititer++ < 10)
+            {
+                ;
+            }
+            Assert.IsTrue(pathFinderMap.IsComplete);
+
+            PathfinderNode[] path = pathFinderMap.GetCompletedPath();
+
+            Assert.AreEqual(path.Length, expectedPath.Length);
+
+            //Test expected positions and ordering
+            for (int i = 0; i < path.Length; ++i)
+            {
+                Assert.AreEqual(path[i].pos, expectedPath[i]);
+            }
+        }
+
+
+
         [Test]
         public void Test_FailTravelForward()
         {
@@ -24,7 +53,7 @@ namespace PathfindingDirectionalLayers.Tests.NUnit_
                 ;
             }
 
-            Assert.IsTrue(pathFinderMap.completedPath == null);
+            Assert.IsTrue(pathFinderMap.GetCompletedPath() == null);
             Assert.IsTrue(pathFinderMap.OpenList.Count == 0);
             Assert.IsTrue(pathFinderMap.ClosedList.Count > 0);
         }
@@ -50,7 +79,7 @@ namespace PathfindingDirectionalLayers.Tests.NUnit_
             }
 
             //Because of the long line added, we should be unable to reach the end point.  All options should be explored.
-            Assert.IsTrue(pathFinderMap.completedPath == null);
+            Assert.IsTrue(pathFinderMap.GetCompletedPath() == null);
             Assert.IsTrue(pathFinderMap.OpenList.Count == 0);
             Assert.IsTrue(pathFinderMap.ClosedList.Count > 0);
         }
@@ -76,7 +105,7 @@ namespace PathfindingDirectionalLayers.Tests.NUnit_
             }
 
             //Because of the long line added, we should be unable to reach the end point.  All options should be explored.
-            Assert.IsTrue(pathFinderMap.completedPath == null);
+            Assert.IsTrue(pathFinderMap.GetCompletedPath() == null);
             Assert.IsTrue(pathFinderMap.OpenList.Count == 0);
             Assert.IsTrue(pathFinderMap.ClosedList.Count > 0);
         }
@@ -102,7 +131,7 @@ namespace PathfindingDirectionalLayers.Tests.NUnit_
             }
 
             //Because of the long line added, we should be unable to reach the end point.  All options should be explored.
-            Assert.IsTrue(pathFinderMap.completedPath == null);
+            Assert.IsTrue(pathFinderMap.GetCompletedPath() == null);
             Assert.IsTrue(pathFinderMap.OpenList.Count == 0);
             Assert.IsTrue(pathFinderMap.ClosedList.Count > 0);
         }

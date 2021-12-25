@@ -60,6 +60,11 @@ namespace PathfindingDirectionalLayers
     {
         public int x;
         public int y;
+        public Vector2_int(int x, int y)
+        {
+            this.x = x;
+            this.y = y;
+        }
 
         public static bool operator ==(Vector2_int left, Vector2_int right)
         {
@@ -92,7 +97,7 @@ namespace PathfindingDirectionalLayers
     public class Pathfinder
     {
         //Completed path if it exists.
-        Stack completedPath;
+        List<PathfinderNode> completedPath;
 
         //Internal counter.
         int iteration_count;
@@ -157,14 +162,14 @@ namespace PathfindingDirectionalLayers
         }
 
 
-        Stack PathBackwardsFromNode(PathfinderNode topNode)
+        List<PathfinderNode> PathBackwardsFromNode(PathfinderNode bottomNode)
         {
-            Stack backwardsPath = new Stack();
+            List<PathfinderNode> backwardsPath = new List<PathfinderNode>();
 
-            PathfinderNode pathNode = topNode;
+            PathfinderNode pathNode = bottomNode;
             do
             {
-                backwardsPath.Push(pathNode);
+                backwardsPath.Add(pathNode);
                 pathNode = pathNode.parent;
 
             } while (pathNode != null && !(pathNode.pos.x == this.StartPoint.x && pathNode.pos.y == this.StartPoint.y));
@@ -174,9 +179,19 @@ namespace PathfindingDirectionalLayers
             {
                 backwardsPath = null;
             }
+            else //Add final node, which is the start node.
+            {
+                backwardsPath.Add(pathNode);
+            }
             return backwardsPath;
         }
 
+        List<PathfinderNode> PathForwardsFromNode(PathfinderNode bottomNode)
+        {
+            List<PathfinderNode> forwardsPath = this.PathBackwardsFromNode(bottomNode);
+            forwardsPath.Reverse();
+            return forwardsPath;
+        }
 
         public bool Iterate(int iterateCount)
         {
@@ -244,7 +259,8 @@ namespace PathfindingDirectionalLayers
             //Exit found detection.
             if (currentNode.pos == this.endPoint)
             {
-                this.completedPath = this.PathBackwardsFromNode(currentNode);
+                this.isComplete = true;
+                this.completedPath = this.PathForwardsFromNode(currentNode);
                 return true;
             }
 
@@ -358,7 +374,7 @@ namespace PathfindingDirectionalLayers
             if (!this.isComplete) { return null; }
             if (this.completedPath == null) { return null; }
 
-            return (PathfinderNode[])this.completedPath.ToArray().Reverse();
+            return this.completedPath.ToArray();
         }
     }
 
@@ -370,13 +386,13 @@ namespace PathfindingDirectionalLayers
     {
         //use async
         //use threading
-        
+
         /// <summary> </summary>
         public PathfindSettings()
         {
             this.earlyExit_maxIterations = -1; //Set to ignore
         }
-        
+
 
         /// <summary> If set, limits upper number of iterations pathfinding may perform until it marks itself complete.  -1 for no limit.</summary>
         public int EarlyExit_maxIterations

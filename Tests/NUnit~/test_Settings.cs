@@ -23,7 +23,7 @@ namespace PathfindingDirectionalLayers.Tests.NUnit_
             }
 
             Assert.AreEqual(pathfindSettings.EarlyExit_maxIterations, pathFinderMap.ClosedList.Count - 1);
-            Assert.IsNull(pathFinderMap.completedPath);
+            Assert.IsNull(pathFinderMap.GetCompletedPath());
 
             pathfindSettings = new PathfindSettings() { };
             //Create our pathfinder.  
@@ -35,7 +35,7 @@ namespace PathfindingDirectionalLayers.Tests.NUnit_
             {
                 ;
             }
-            Assert.NotNull(pathFinderMap.completedPath);
+            Assert.NotNull(pathFinderMap.GetCompletedPath());
 
         }
 
