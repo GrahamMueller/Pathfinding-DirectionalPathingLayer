@@ -40,6 +40,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using DirectionalPathingLayers;
 
 namespace PathfindingDirectionalLayers
 {
@@ -286,7 +287,7 @@ namespace PathfindingDirectionalLayers
             DirectionalNode centerMapNode = this.mapLayer.DirectionLayer.directionalNodes[centerNode.pos.x, centerNode.pos.y];
             Stack neighborNodes = new Stack();
             //Forward
-            if (centerMapNode.directions[0] != 0)
+            if (centerMapNode.Forward != 0)
             {
                 Vector2_int newPos = new Vector2_int() { x = centerNode.pos.x, y = centerNode.pos.y + 1 };
                 if (newPos.x >= 0 &&
@@ -299,7 +300,7 @@ namespace PathfindingDirectionalLayers
             }
 
             //Back
-            if (centerMapNode.directions[1] != 0)
+            if (centerMapNode.Backward != 0)
             {
                 Vector2_int newPos = new Vector2_int() { x = centerNode.pos.x, y = centerNode.pos.y - 1 };
                 if (newPos.x >= 0 &&
@@ -312,7 +313,7 @@ namespace PathfindingDirectionalLayers
             }
 
             //right
-            if (centerMapNode.directions[2] != 0)
+            if (centerMapNode.Right != 0)
             {
                 Vector2_int newPos = new Vector2_int() { x = centerNode.pos.x + 1, y = centerNode.pos.y };
                 if (newPos.x >= 0 &&
@@ -325,7 +326,7 @@ namespace PathfindingDirectionalLayers
             }
 
             //left
-            if (centerMapNode.directions[3] != 0)
+            if (centerMapNode.Left != 0)
             {
                 Vector2_int newPos = new Vector2_int() { x = centerNode.pos.x - 1, y = centerNode.pos.y };
                 if (newPos.x >= 0 &&
@@ -338,11 +339,11 @@ namespace PathfindingDirectionalLayers
             }
 
             //Other up down later supported
-            if (centerMapNode.directions[4] != 0)
+            if (centerMapNode.Up != 0)
             {
                 throw new Exception("Vertical movement unsupported");
             }
-            if (centerMapNode.directions[5] != 0)
+            if (centerMapNode.Down != 0)
             {
                 throw new Exception("Vertical movement unsupported");
             }

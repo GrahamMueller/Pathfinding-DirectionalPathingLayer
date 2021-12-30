@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using DirectionalPathingLayers;
 
 namespace PathfindingDirectionalLayers.Tests.NUnit_
 {

@@ -1,5 +1,5 @@
 ﻿using NUnit.Framework;
-
+using DirectionalPathingLayers;
 namespace PathfindingDirectionalLayers.Tests.NUnit_
 {
     public class test_DirectionalPathing
@@ -110,7 +110,7 @@ namespace PathfindingDirectionalLayers.Tests.NUnit_
 
             //Create a long line which will block the direction we want to move in.
             DirectionalLayer addObject = new DirectionalLayer(0, 20);
-            addObject.Set(new DirectionalNode(new int[] { 0, 0, 1, 0, 0, 0 }));
+            addObject.Set(new DirectionalNode(new int[] { 0, 0, 0, 1, 0, 0 }));
             mapLayer.AddDirectionalLayerAtPoint(addObject, 0, 0);
 
             //Create our pathfinder.  
@@ -136,7 +136,7 @@ namespace PathfindingDirectionalLayers.Tests.NUnit_
 
             //Create a long line which will block the direction we want to move in.
             DirectionalLayer addObject = new DirectionalLayer(0, 20);
-            addObject.Set(new DirectionalNode(new int[] { 0, 0, 0, 1, 0, 0 }));
+            addObject.Set(new DirectionalNode(new int[] { 0, 0, 1, 0, 0, 0 }));
             mapLayer.AddDirectionalLayerAtPoint(addObject, 0, 0);
 
             //Create our pathfinder.  
