@@ -1,73 +1,154 @@
-﻿//using BenchmarkDotNet.Attributes;
-//using BenchmarkDotNet.Running;
-//using BenchmarkDotNet.Configs;
-//using BenchmarkDotNet.Loggers;
-//using BenchmarkDotNet.Columns;
-//using BenchmarkDotNet.Validators;
+﻿using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Columns;
+using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Loggers;
+using BenchmarkDotNet.Running;
+using BenchmarkDotNet.Validators;
+using DirectionalPathingLayers;
+using NUnit.Framework;
+using PathfindingDirectionalLayers.Utility;
+namespace PathfindingDirectionalLayers.Tests.Benchmark_
+{
+    [MediumRunJob]
+    [HtmlExporter]
+    [MarkdownExporterAttribute.GitHub]
+    public class TestClass
+    {
+        private const int N = 10;
 
-//namespace pathfinding.directional.layers.Tests.Benchmark_
-//{
-//    public class TestClass
-//    {
-//        private const int N = 1000;
-//        MapDirectionalLayer smallMap;
-//        MapDirectionalLayer largeMap;
-//        public TestClass()
-//        {
-//            this.smallMap =  new MapDirectionalLayer(10, 10, new DirectionalNode(new int[] { 1, 1, 1, 1, 0, 0 }));
-//            this.largeMap =  new MapDirectionalLayer(100, 100, new DirectionalNode(new int[] { 1, 1, 1, 1, 0, 0 }));
-//        }
+        int mapWidth = 25;
+        int mapHeight = 250;
+        MapDirectionalLayer map_250;
+        MapDirectionalLayer map_250_complex;
+        public TestClass()
+        {
+            this.map_250 = new MapDirectionalLayer(this.mapWidth, this.mapHeight, new DirectionalNode(new int[] { 1, 1, 1, 1, 0, 0 }));
+            this.map_250_complex = new MapDirectionalLayer(this.mapWidth, this.mapHeight, new DirectionalNode(new int[] { 1, 1, 1, 1, 0, 0 }));
 
+            DirectionalLayer horizontalWall = new DirectionalLayer(this.mapWidth - 1, 0);
+            horizontalWall.Set(1);
+            for (int i = -this.mapHeight + 5; i < this.mapHeight - 5; i += 6)
+            {
+                if (i / 2 % 2 == 0)
+                {
+                    this.map_250_complex.AddDirectionalLayerAtPoint(horizontalWall, -2, i);
+                }
 
-//        [Benchmark]
-//        public void small_path()
-//        {
-//            MapDirectionalLayer mapLayer = this.smallMap;
+                else
+                {
+                    this.map_250_complex.AddDirectionalLayerAtPoint(horizontalWall, 2, i);
 
-//            PathfindSettings pathfindSettings = new PathfindSettings() { };
-//            //Create our pathfinder.  
-//            Pathfinder pathFinderMap = new Pathfinder(20, 0, 0, 0, mapLayer, pathfindSettings);
+                }
+            }
 
-//            //Run until all options are completed.
-//            int earlyExititer = 0;
-//            while (pathFinderMap.Iterate() == false && earlyExititer++ < 1000)
-//            {
-//                ;
-//            }
-//        }
+        }
 
-//        [Benchmark]
-//        public void big_path()
-//        {
-//            MapDirectionalLayer mapLayer = this.largeMap;
-
-//            PathfindSettings pathfindSettings = new PathfindSettings() { };
-//            //Create our pathfinder.  
-//            Pathfinder pathFinderMap = new Pathfinder(100, 0, 0, 0, mapLayer, pathfindSettings);
-
-//            //Run until all options are completed.
-//            int earlyExititer = 0;
-//            while (pathFinderMap.Iterate() == false && earlyExititer++ < 1000)
-//            {
-//                ;
-//            }
+        [Params(5, 10, 20, 100, 250)]
+        public static int startPosition;
 
 
-//        }
-//    }
+        [Benchmark]
+        public void profile_SimpleStraightPath()
+        {
+            MapDirectionalLayer mapLayer = this.map_250;
 
-//    class Benchmark_Main
-//    {
-//        static void Main(string[] args)
-//        {
-//            var config = new ManualConfig()
-//                .WithOptions(ConfigOptions.DisableOptimizationsValidator)
-//                .AddValidator(JitOptimizationsValidator.DontFailOnError)
-//                .AddLogger(ConsoleLogger.Default)
-//                .AddColumnProvider(DefaultColumnProviders.Instance);
+            PathfindSettings pathfindSettings = new PathfindSettings() { };
+            //Create our pathfinder.  
+            Pathfinder pathFinderMap = new Pathfinder(this.mapWidth,0, this.mapWidth, startPosition, mapLayer, pathfindSettings);
 
-//            var summary = BenchmarkRunner.Run<TestClass>(config);
-//        }
-//    }
+            //Run until all options are completed.
+            int earlyExititer = 0;
+            while (pathFinderMap.Iterate() == false && earlyExititer++ < 1000000)
+            {
+                ;
+            }
 
-//}
+        }
+
+        //[Benchmark]
+        //public void profile_ComplexPath()
+        //{
+        //    MapDirectionalLayer mapLayer = this.map_250_complex;
+
+        //    PathfindSettings pathfindSettings = new PathfindSettings() { };
+        //    //Create our pathfinder.  
+        //    Pathfinder pathFinderMap = new Pathfinder(this.mapWidth, 0, this.mapWidth, startPosition, mapLayer, pathfindSettings);
+
+        //    //Run until all options are completed.
+        //    int earlyExititer = 0;
+        //    while (pathFinderMap.Iterate() == false && earlyExititer++ < 1000000)
+        //    {
+        //        ;
+        //    }
+
+        //}
+
+        //[Test]
+        //public void SimpleVisualize_ComplexPath()
+        //{
+        //    MapDirectionalLayer mapLayer = this.map_250_complex;
+
+        //    PathfindSettings pathfindSettings = new PathfindSettings() { };
+        //    //Create our pathfinder.  
+        //    Pathfinder pathFinderMap = new Pathfinder(this.mapWidth, 2, this.mapWidth, this.mapHeight * 2 - 2, mapLayer, pathfindSettings);
+
+        //    //Run until all options are completed.
+        //    int earlyExititer = 0;
+        //    while (pathFinderMap.Iterate() == false && earlyExititer++ < 10000000)
+        //    {
+        //        ;
+        //    }
+
+        //    PathfinderVisualizer.SaveAsPng(pathFinderMap, "complexPath.png", 6);
+        //}
+
+#if RELEASE
+        [Test]
+        public void ProfilePaths()
+        {
+            ManualConfig config = new ManualConfig()
+                .WithOptions(ConfigOptions.DisableOptimizationsValidator)
+                .AddValidator(JitOptimizationsValidator.DontFailOnError)
+                .AddLogger(ConsoleLogger.Default)
+                .AddColumnProvider(DefaultColumnProviders.Instance);
+
+            BenchmarkDotNet.Reports.Summary summary = BenchmarkRunner.Run<TestClass>(config);
+        }
+#endif
+        //[Benchmark]
+        //public void path_100()
+        //{
+        //    MapDirectionalLayer mapLayer = this.map_500;
+
+        //    PathfindSettings pathfindSettings = new PathfindSettings() { };
+        //    //Create our pathfinder.  
+        //    Pathfinder pathFinderMap = new Pathfinder(100, 0, 0, 0, mapLayer, pathfindSettings);
+
+        //    //Run until all options are completed.
+        //    int earlyExititer = 0;
+        //    while (pathFinderMap.Iterate() == false && earlyExititer++ < 10000)
+        //    {
+        //        ;
+        //    }
+        //}
+
+        //[Benchmark]
+        //public void path_500()
+        //{
+        //    MapDirectionalLayer mapLayer = this.map_500;
+
+        //    PathfindSettings pathfindSettings = new PathfindSettings() { };
+        //    //Create our pathfinder.  
+        //    Pathfinder pathFinderMap = new Pathfinder(500, 0, 0, 0, mapLayer, pathfindSettings);
+
+        //    //Run until all options are completed.
+        //    int earlyExititer = 0;
+        //    while (pathFinderMap.Iterate() == false && earlyExititer++ < 10000)
+        //    {
+        //        ;
+        //    }
+        //}
+
+    }
+
+}
