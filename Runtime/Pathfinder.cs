@@ -36,11 +36,10 @@ TODO
     
     
 */
+using DirectionalPathingLayers;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using DirectionalPathingLayers;
 
 namespace PathfindingDirectionalLayers
 {
@@ -111,12 +110,12 @@ namespace PathfindingDirectionalLayers
         MapDirectionalLayer mapLayer;
 
         /// <summary> Sorted list of points with [0] being lowest cost. Used to explore nodes until a path from start to end is found.</summary>
-        public List<PathfinderNode> OpenList { get => this.openList; }
-        List<PathfinderNode> openList;
+        public LinkedList<PathfinderNode> OpenList { get => this.openList; }
+        LinkedList<PathfinderNode> openList;
 
         /// <summary> Unsorted list of points previously in 'OpenList' which can path back to start point.</summary>
-        public List<PathfinderNode> ClosedList { get => this.closedList; }
-        List<PathfinderNode> closedList;
+        public LinkedList<PathfinderNode> ClosedList { get => this.closedList; }
+        LinkedList<PathfinderNode> closedList;
 
         /// <summary> If the pathfinding is complete, either by a path having been found or after exhausting all options.</summary>
         public bool IsComplete { get => this.isComplete; }
@@ -135,9 +134,11 @@ namespace PathfindingDirectionalLayers
             this.settings = settings;
 
             //--Setup initial iteration.
-            this.openList = new List<PathfinderNode>();
-            this.openList.Add(new PathfinderNode(this.StartPoint, null, 0));
-            this.closedList = new List<PathfinderNode>();
+            this.openList = new LinkedList<PathfinderNode>();
+            this.openList.AddFirst(new PathfinderNode(this.StartPoint, null, 0));
+
+            this.closedList = new LinkedList<PathfinderNode>();
+
             this.iteration_count = 0;
 
             this.isComplete = false;
@@ -206,9 +207,10 @@ namespace PathfindingDirectionalLayers
         /// </summary>
         PathfinderNode GetNextBestNode()
         {
-            PathfinderNode bestNode = this.openList[0];
-            this.openList.RemoveAt(0);
-            this.closedList.Add(bestNode);
+            PathfinderNode bestNode = this.openList.First.Value;
+            this.openList.RemoveFirst();
+
+            this.InsertIntoLinkedList(ref this.closedList, bestNode);
             return bestNode;
         }
 
@@ -224,12 +226,14 @@ namespace PathfindingDirectionalLayers
             while (neighbors.Count > 0)
             {
                 PathfinderNode neighborNode = (PathfinderNode)neighbors.Pop();
+
                 //Only add neighbors to open if we are unaware of them.
-                if (!this.PointInList(neighborNode, this.openList) && !this.PointInList(neighborNode, this.closedList))
+                if (!this.PointInLinkedList(neighborNode, this.openList) && !this.PointInLinkedList(neighborNode, this.closedList))
                 {
                     //Cost function
                     neighborNode.cost = this.GetCostOfNode(neighborNode);
-                    this.openList.Add(neighborNode);
+                    this.InsertIntoLinkedList(ref this.openList, neighborNode);
+
                 }
             }
         }
@@ -262,25 +266,62 @@ namespace PathfindingDirectionalLayers
             //Add neighbors to list.
             this.AddNeighborsToOpen(neighborNodes);
 
-            //Update ordering.
-            this.openList = this.openList.OrderBy(node => node.cost).ToList<PathfinderNode>();
-
             //Not at end!
             return false;
         }
 
 
-        bool PointInList(PathfinderNode point, List<PathfinderNode> list)
+        bool PointInLinkedList(PathfinderNode node, LinkedList<PathfinderNode> linkedList)
         {
-            PathfinderNode node;
-            for (int i = 0; i < list.Count; ++i)
+            LinkedListNode<PathfinderNode> linkedNode = linkedList.First;
+            if (linkedNode is null)
             {
-                node = list[i];
-                if (node.pos == point.pos) { return true; }
+                return false;
+            }
+
+            while (linkedNode is not null)
+            {
+                //If we reach a cost which is this value or higher, insert at the index instead.
+                if (linkedNode.Value.pos == node.pos)
+                {
+                    return true;
+                }
+                else
+                {
+                    linkedNode = linkedNode.Next;
+                }
             }
             return false;
         }
 
+        void InsertIntoLinkedList(ref LinkedList<PathfinderNode> linkedList, in PathfinderNode node)
+        {
+            LinkedListNode<PathfinderNode> linkedNode = linkedList.First;
+
+            //If unable to retrieve first node, we have an empty list.
+            if (linkedNode is null)
+            {
+                linkedList.AddFirst(node);
+                return;
+            }
+            
+            //Find first node whose 'cost' value equals or exceeds the node being added. 
+            while (linkedNode is not null)
+            {
+                //If we reach a cost which is this value or higher, insert at the index instead.
+                if (linkedNode.Value.cost >= node.cost)
+                {
+                    linkedList.AddBefore(linkedNode, node);
+                    return;
+                }
+                else
+                {
+                    linkedNode = linkedNode.Next;
+                }
+            }
+            //Failed to find a cost greater than node.  Add node to last position.
+            linkedList.AddLast(node);
+        }
 
         Stack GetNeighbors(PathfinderNode centerNode)
         {
@@ -341,11 +382,11 @@ namespace PathfindingDirectionalLayers
             //Other up down later supported
             if (centerMapNode.Up != 0)
             {
-                throw new Exception("Vertical movement unsupported");
+                //throw new Exception("Vertical movement unsupported");
             }
             if (centerMapNode.Down != 0)
             {
-                throw new Exception("Vertical movement unsupported");
+                //throw new Exception("Vertical movement unsupported");
             }
 
             return neighborNodes;
