@@ -9,12 +9,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="DirectionalPathingLayers\**" />
     <Compile Remove="Tests\Unity\**" />
+    <EmbeddedResource Remove="DirectionalPathingLayers\**" />
     <EmbeddedResource Remove="Tests\Unity\**" />
+    <None Remove="DirectionalPathingLayers\**" />
     <None Remove="Tests\Unity\**" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.1" />
+    <PackageReference Include="BenchmarkDotNet.Annotations" Version="0.13.1" />
     <PackageReference Include="JUnitTestLogger" Version="1.1.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
     <PackageReference Include="NUnit" Version="3.13.1" />
@@ -22,4 +27,7 @@
     <PackageReference Include="coverlet.collector" Version="3.0.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="DirectionalPathingLayers\DirectionalPathingLayers.csproj" />
+  </ItemGroup>
 </Project>

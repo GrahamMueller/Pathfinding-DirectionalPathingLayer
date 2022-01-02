@@ -1,45 +1,49 @@
 ﻿using System;
+using NUnit.Framework;
+using DirectionalPathingLayers;
+using PathfindingDirectionalLayers.Utility;
 
-//namespace Assets.Tests
-//{
-//    class SimpleRun{
-//        static void Main(string[] args)
+namespace PathfindingDirectionalLayers.Tests
+{
+    class VisualTests
+    {
+        [Test]
+        public void Test_Visual_Simple()
+        {
+            string outputImagePath = "visual_simple.png";
 
-//        {
-//            MapDirectionalLayer mapLayer = new MapDirectionalLayer(5, 5, new DirectionalNode(1));
+            MapDirectionalLayer mapLayer = new MapDirectionalLayer(10, 10, new DirectionalNode(new int[] { 1, 1, 1, 1, 0, 0 }));
 
+            DirectionalLayer addObject = new DirectionalLayer(1, 1);
+            addObject.Set(new DirectionalNode(new int[] { 1, 1, 1, 1, 1,1 }));
+            
+            //Create long horizontal line
+            mapLayer.AddDirectionalLayerAtPoint(addObject, 0, 0);
+            mapLayer.AddDirectionalLayerAtPoint(addObject, 2, 0);
+            mapLayer.AddDirectionalLayerAtPoint(addObject,  -2, 0);
+            mapLayer.AddDirectionalLayerAtPoint(addObject,  4, 0);
+            mapLayer.AddDirectionalLayerAtPoint(addObject, -4, 0);
+            mapLayer.AddDirectionalLayerAtPoint(addObject,  6, 0);
+            mapLayer.AddDirectionalLayerAtPoint(addObject, -6, 0);
+            //Create vertical lines down
+            mapLayer.AddDirectionalLayerAtPoint(addObject,  6, -3);
+            mapLayer.AddDirectionalLayerAtPoint(addObject, -6, -3);
+            //Create 'V' towards bottom center.
+            mapLayer.AddDirectionalLayerAtPoint(addObject, 4, -5);
+            mapLayer.AddDirectionalLayerAtPoint(addObject, -4, -5);
+            mapLayer.AddDirectionalLayerAtPoint(addObject,  2, -7);
+            mapLayer.AddDirectionalLayerAtPoint(addObject, -2, -7);
+            //Bottom of shape is open - the rest of the shape is enclosed.
 
-//            //Blocked center nodes
-//            DirectionalLayer horizontalBlocker = new DirectionalLayer(3, 0);
-//            horizontalBlocker.Set(1);
-//            mapLayer.AddDirectionalLayerAtPoint(horizontalBlocker, 0, 2);
-//            mapLayer.AddDirectionalLayerAtPoint(horizontalBlocker, -3, -3);
-//            mapLayer.AddDirectionalLayerAtPoint(horizontalBlocker, 3, -1);
-//            //mapLayer.AddDirectionalLayerAtPoint(horizontalBlocker, 0, -2);
+            Pathfinder pathFinderMap = new Pathfinder(10, 0, 10, 18, mapLayer, new PathfindSettings());
 
+            int earlyExititer = 0;
+            while (pathFinderMap.Iterate() == false && earlyExititer++ < 1000)
+            {
+                ;
+            }
 
-//            Vector2_int startPos = new Vector2_int() { x = mapLayer.DirectionLayer.WorldXToIndex(0), y = mapLayer.DirectionLayer.WorldYToIndex(-4) };
-//            Vector2_int endPos = new Vector2_int() { x = mapLayer.DirectionLayer.WorldXToIndex(0), y = mapLayer.DirectionLayer.WorldYToIndex( 4 ) };
-
-//            PathfindSettings pathfindSettings = new PathfindSettings();
-//            pathfindSettings.EarlyExit_maxIterations = -1;
-//            pathfindSettings.EarlyExit_maxRange = -1;
-
-//            Pathfinder pathfind = new Pathfinder(startPos.x, startPos.y, endPos.x, endPos.y, mapLayer, pathfindSettings);
-
-//            //Iterate.
-//            while (pathfind.Iterate() == false)
-//            {
-//                int a = 0;
-//            }
-//        }
-//    }
-
-//    //Get in unityworking, showing iteration 
-//        //Button
-//        //Use grids
-//        //Show path
-//        //show open, closed list entities
-//        //Show pathing (steal from possum)
-
-//}
+            PathfinderVisualizer.SaveAsPng(pathFinderMap, outputImagePath, 6);
+        }
+    }
+}
