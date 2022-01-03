@@ -10,7 +10,7 @@ namespace PathfindingDirectionalLayers.Tests.NUnit_
         public void Test_PathingOrder() //Tests that a path can be found forward and in the correct order. 
         {
             Vector2_int[] expectedPath = new Vector2_int[6] { new Vector2_int(0, 0), new Vector2_int(0, 1), new Vector2_int(0, 2), new Vector2_int(0, 3), new Vector2_int(0, 4), new Vector2_int(0, 5) };
-            MapDirectionalLayer mapLayer = new MapDirectionalLayer(10, 10, new DirectionalNode(new int[] { 1, 1, 1, 1, 0, 0 }));
+            MapDirectionalLayer mapLayer = new MapDirectionalLayer(10, 10, new DirectionalNode( 1, 1, 1, 1, 0, 0 ));
 
             Pathfinder pathFinderMap = new Pathfinder(0, 0, 0, 5, mapLayer, new PathfindSettings());
 
@@ -35,7 +35,7 @@ namespace PathfindingDirectionalLayers.Tests.NUnit_
         [Test]
         public void Test_FailStartOutside() //Test expected failure to path when start is outside bounds.
         {
-            MapDirectionalLayer mapLayer = new MapDirectionalLayer(10, 10, new DirectionalNode(new int[] { 1, 1, 1, 1, 0, 0 }));
+            MapDirectionalLayer mapLayer = new MapDirectionalLayer(10, 10, new DirectionalNode( 1, 1, 1, 1, 0, 0 ));
             Pathfinder pathFinderMap = new Pathfinder(100, 0, 0, 0, mapLayer, new PathfindSettings());
 
             Assert.IsTrue(pathFinderMap.IsComplete);
@@ -45,7 +45,7 @@ namespace PathfindingDirectionalLayers.Tests.NUnit_
         [Test]
         public void Test_FailEndOutside() //Test expected failure to path when end is outside bounds.
         {
-            MapDirectionalLayer mapLayer = new MapDirectionalLayer(10, 10, new DirectionalNode(new int[] { 1, 1, 1, 1, 0, 0 }));
+            MapDirectionalLayer mapLayer = new MapDirectionalLayer(10, 10, new DirectionalNode( 1, 1, 1, 1, 0, 0 ));
             Pathfinder pathFinderMap = new Pathfinder(0, 0, 100, 0, mapLayer, new PathfindSettings());
 
             Assert.IsTrue(pathFinderMap.IsComplete);
@@ -55,10 +55,10 @@ namespace PathfindingDirectionalLayers.Tests.NUnit_
         [Test]
         public void Test_FailTravelForward()
         {
-            MapDirectionalLayer mapLayer = new MapDirectionalLayer(10, 10, new DirectionalNode(new int[] { 1, 1, 1, 1, 0, 0 }));
+            MapDirectionalLayer mapLayer = new MapDirectionalLayer(10, 10, new DirectionalNode( 1, 1, 1, 1, 0, 0 ));
 
             DirectionalLayer addObject = new DirectionalLayer(20, 0);
-            addObject.Set(new DirectionalNode(new int[] { 1, 0, 0, 0, 0, 0 }));
+            addObject.Set(new DirectionalNode( 1, 0, 0, 0, 0, 0 ));
 
 
             mapLayer.AddDirectionalLayerAtPoint(addObject, 0, 0);
@@ -80,11 +80,11 @@ namespace PathfindingDirectionalLayers.Tests.NUnit_
         [Test]
         public void Test_FailTravelBack()
         {
-            MapDirectionalLayer mapLayer = new MapDirectionalLayer(10, 10, new DirectionalNode(new int[] { 1, 1, 1, 1, 0, 0 }));
+            MapDirectionalLayer mapLayer = new MapDirectionalLayer(10, 10, new DirectionalNode( 1, 1, 1, 1, 0, 0 ));
 
             //Create a long line which will block the direction we want to move in.
             DirectionalLayer addObject = new DirectionalLayer(20, 0);
-            addObject.Set(new DirectionalNode(new int[] { 0, 1, 0, 0, 0, 0 }));
+            addObject.Set(new DirectionalNode( 0, 1, 0, 0, 0, 0 ));
             mapLayer.AddDirectionalLayerAtPoint(addObject, 0, 0);
 
             //Create our pathfinder.  
@@ -106,11 +106,11 @@ namespace PathfindingDirectionalLayers.Tests.NUnit_
         [Test]
         public void Test_FailTravelRight()
         {
-            MapDirectionalLayer mapLayer = new MapDirectionalLayer(10, 10, new DirectionalNode(new int[] { 1, 1, 1, 1, 0, 0 }));
+            MapDirectionalLayer mapLayer = new MapDirectionalLayer(10, 10, new DirectionalNode( 1, 1, 1, 1, 0, 0 ));
 
             //Create a long line which will block the direction we want to move in.
             DirectionalLayer addObject = new DirectionalLayer(0, 20);
-            addObject.Set(new DirectionalNode(new int[] { 0, 0, 0, 1, 0, 0 }));
+            addObject.Set(new DirectionalNode( 0, 0, 0, 1, 0, 0 ));
             mapLayer.AddDirectionalLayerAtPoint(addObject, 0, 0);
 
             //Create our pathfinder.  
@@ -132,11 +132,11 @@ namespace PathfindingDirectionalLayers.Tests.NUnit_
         [Test]
         public void Test_FailTravelLeft()
         {
-            MapDirectionalLayer mapLayer = new MapDirectionalLayer(10, 10, new DirectionalNode(new int[] { 1, 1, 1, 1, 0, 0 }));
+            MapDirectionalLayer mapLayer = new MapDirectionalLayer(10, 10, new DirectionalNode( 1, 1, 1, 1, 0, 0 ));
 
             //Create a long line which will block the direction we want to move in.
             DirectionalLayer addObject = new DirectionalLayer(0, 20);
-            addObject.Set(new DirectionalNode(new int[] { 0, 0, 1, 0, 0, 0 }));
+            addObject.Set(new DirectionalNode( 0, 0, 1, 0, 0, 0 ));
             mapLayer.AddDirectionalLayerAtPoint(addObject, 0, 0);
 
             //Create our pathfinder.  

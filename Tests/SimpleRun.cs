@@ -12,10 +12,10 @@ namespace PathfindingDirectionalLayers.Tests
         {
             string outputImagePath = "visual_simple.png";
 
-            MapDirectionalLayer mapLayer = new MapDirectionalLayer(10, 10, new DirectionalNode(new int[] { 1, 1, 1, 1, 0, 0 }));
+            MapDirectionalLayer mapLayer = new MapDirectionalLayer(10, 10, new DirectionalNode( 1, 1, 1, 1, 0, 0 ));
 
             DirectionalLayer addObject = new DirectionalLayer(1, 1);
-            addObject.Set(new DirectionalNode(new int[] { 1, 1, 1, 1, 1,1 }));
+            addObject.Set(new DirectionalNode( 1, 1, 1, 1, 1,1 ));
             
             //Create long horizontal line
             mapLayer.AddDirectionalLayerAtPoint(addObject, 0, 0);

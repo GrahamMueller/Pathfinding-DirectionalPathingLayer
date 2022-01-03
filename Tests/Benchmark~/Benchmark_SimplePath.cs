@@ -6,10 +6,9 @@ using BenchmarkDotNet.Running;
 using BenchmarkDotNet.Validators;
 using DirectionalPathingLayers;
 using NUnit.Framework;
-using PathfindingDirectionalLayers.Utility;
 namespace PathfindingDirectionalLayers.Tests.Benchmark_
 {
-    [MediumRunJob]
+    [ShortRunJob]
     [HtmlExporter]
     [MarkdownExporterAttribute.GitHub]
     public class TestClass
@@ -22,8 +21,8 @@ namespace PathfindingDirectionalLayers.Tests.Benchmark_
         MapDirectionalLayer map_250_complex;
         public TestClass()
         {
-            this.map_250 = new MapDirectionalLayer(this.mapWidth, this.mapHeight, new DirectionalNode(new int[] { 1, 1, 1, 1, 0, 0 }));
-            this.map_250_complex = new MapDirectionalLayer(this.mapWidth, this.mapHeight, new DirectionalNode(new int[] { 1, 1, 1, 1, 0, 0 }));
+            this.map_250 = new MapDirectionalLayer(this.mapWidth, this.mapHeight, new DirectionalNode(1, 1, 1, 1, 0, 0));
+            this.map_250_complex = new MapDirectionalLayer(this.mapWidth, this.mapHeight, new DirectionalNode(1, 1, 1, 1, 0, 0));
 
             DirectionalLayer horizontalWall = new DirectionalLayer(this.mapWidth - 1, 0);
             horizontalWall.Set(1);
@@ -43,8 +42,8 @@ namespace PathfindingDirectionalLayers.Tests.Benchmark_
 
         }
 
-        [Params(5, 10, 20, 100, 250)]
-        public static int startPosition;
+        [Params(1, 5, 10, 20, 30, 40, 50, 100, 150, 200)]
+        public static int pathIterations;
 
 
         [Benchmark]
@@ -54,11 +53,11 @@ namespace PathfindingDirectionalLayers.Tests.Benchmark_
 
             PathfindSettings pathfindSettings = new PathfindSettings() { };
             //Create our pathfinder.  
-            Pathfinder pathFinderMap = new Pathfinder(this.mapWidth,0, this.mapWidth, startPosition, mapLayer, pathfindSettings);
+            Pathfinder pathFinderMap = new Pathfinder(this.mapWidth, 0, this.mapWidth, this.mapHeight * 2, mapLayer, pathfindSettings);
 
             //Run until all options are completed.
             int earlyExititer = 0;
-            while (pathFinderMap.Iterate() == false && earlyExititer++ < 1000000)
+            while (pathFinderMap.Iterate() == false && earlyExititer++ < pathIterations)
             {
                 ;
             }

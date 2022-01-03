@@ -10,7 +10,7 @@ namespace PathfindingDirectionalLayers.Tests.NUnit_
         [Test]
         public void Test_EarlyExit_maxIterations()
         {
-            MapDirectionalLayer mapLayer = new MapDirectionalLayer(10, 10, new DirectionalNode(new int[] { 1, 1, 1, 1, 0, 0 }));
+            MapDirectionalLayer mapLayer = new MapDirectionalLayer(10, 10, new DirectionalNode( 1, 1, 1, 1, 0, 0 ));
 
             PathfindSettings pathfindSettings = new PathfindSettings() { EarlyExit_maxIterations = 10 };
             //Create our pathfinder.  

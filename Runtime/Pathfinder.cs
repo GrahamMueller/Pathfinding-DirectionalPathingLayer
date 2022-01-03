@@ -279,7 +279,7 @@ namespace PathfindingDirectionalLayers
                 return false;
             }
 
-            while (linkedNode is not null)
+            while (!(linkedNode is null))
             {
                 //If we reach a cost which is this value or higher, insert at the index instead.
                 if (linkedNode.Value.pos == node.pos)
@@ -306,7 +306,7 @@ namespace PathfindingDirectionalLayers
             }
             
             //Find first node whose 'cost' value equals or exceeds the node being added. 
-            while (linkedNode is not null)
+            while (!(linkedNode is null))
             {
                 //If we reach a cost which is this value or higher, insert at the index instead.
                 if (linkedNode.Value.cost >= node.cost)
