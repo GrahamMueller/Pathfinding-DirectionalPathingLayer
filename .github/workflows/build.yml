@@ -24,7 +24,7 @@ jobs:
           dotnet-version: ${{ matrix.dotnet-version }}
       - name: Restore dependencies
         run: dotnet restore
-          - name: Build
-            run: dotnet build PathfindingDirectionalLayers.csproj --no-restore
-          - name: Test
-            run: dotnet test PathfindingDirectionalLayers.csproj --no-build --verbosity normal  --logger "junit" --collect:"Xplat Code Coverage" --filter "FullyQualifiedName=PathfindingDirectionalLayers"
+      - name: Build
+        run: dotnet build PathfindingDirectionalLayers.csproj --no-restore
+      - name: Test
+        run: dotnet test PathfindingDirectionalLayers.csproj --no-build --verbosity normal  --logger "junit" --collect:"Xplat Code Coverage" --filter "FullyQualifiedName=PathfindingDirectionalLayers"
